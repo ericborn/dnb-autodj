@@ -33,7 +33,7 @@ if __name__ == '__main__':
 	
 	while(True):
 		try:
-			cmd_split = str.split(raw_input('> : '), ' ')
+			cmd_split = str.split((r'> : '), ' ')
 		except KeyboardInterrupt:
 			logger.info('Goodbye!')
 			break

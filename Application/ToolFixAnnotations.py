@@ -31,7 +31,7 @@ def overlayAudio(audio, beats):
 class ToolFixAnnotationApp(tk.Tk):
 	
 	def __init__(self, directories, *args, **kwargs):
-		print args, kwargs
+		print(args, kwargs)
 		tk.Tk.__init__(self, *args, **kwargs)
 		
 		# Stream for audio playback
@@ -43,7 +43,7 @@ class ToolFixAnnotationApp(tk.Tk):
 		self.protocol("WM_DELETE_WINDOW", self.close_window)
 		
 		sc = SongCollection()
-		print directories
+		print(directories)
 		for dir_ in directories:
 			sc.load_directory(dir_)
 		self.songs = sc.get_marked()
@@ -97,7 +97,7 @@ class ToolFixAnnotationApp(tk.Tk):
 		self.add_segment_buttons()
 			
 	def play_beats(self):
-		print 'Beats of ' + self.song.title
+		print('Beats of ' + self.song.title)
 		song = self.song
 		high_segments = [i for i,j in zip(song.segment_indices, song.segment_types) if j == 'H']
 		start_beat = song.downbeats[high_segments[0]]
@@ -117,7 +117,7 @@ class ToolFixAnnotationApp(tk.Tk):
 		song.downbeats = [b - phase + song.phase for b in song.downbeats]
 		
 	def play_downbeats(self):
-		print 'Downbeats of ' + self.song.title
+		print('Downbeats of ' + self.song.title)
 		song = self.song
 		high_segments = [i for i,j in zip(song.segment_indices, song.segment_types) if j == 'H']
 		start_beat = song.downbeats[high_segments[0]]
@@ -134,7 +134,7 @@ class ToolFixAnnotationApp(tk.Tk):
 		song.downbeats = [song.beats[i] for i in range(len(song.beats)) if (i-(dbindex+1))%4 == 0]
 
 	def play_segment(self,segidx):
-		print 'Playing segment ' + str(segidx)
+		print('Playing segment ' + str(segidx))
 		song = self.song
 		
 		start_idx = int(song.downbeats[segidx]*44100)
@@ -144,8 +144,8 @@ class ToolFixAnnotationApp(tk.Tk):
 		self.stream.write(audio, num_frames=len(audio), exception_on_underflow=False)
 		
 	def shift_segments(self, shift):
-		print 'Shifting segments with factor: {}'.format(shift)
-		print self.song.segment_indices
+		print('Shifting segments with factor: {}'.format(shift))
+		print(self.song.segment_indices)
 		segment_indices_new = [i+shift for i in self.song.segment_indices[:-1]]
 		if shift < 0:
 			segment_indices_new.append(self.song.segment_indices[-1]+shift)
@@ -159,10 +159,10 @@ class ToolFixAnnotationApp(tk.Tk):
 		self.song.segment_indices = segment_indices_new
 		self.song.loadAnnotSegments_fixNegativeStart()
 		self.add_segment_buttons()
-		print self.song.segment_indices
+		print(self.song.segment_indices)
 		
 	def shift_segment(self, idx, shift):
-		print self.song.segment_indices
+		print(self.song.segment_indices)
 		
 		segment_index = self.song.segment_indices[idx] + shift
 		
@@ -170,14 +170,14 @@ class ToolFixAnnotationApp(tk.Tk):
 			if idx == 0 or self.song.segment_indices[idx-1] < segment_index:
 				self.song.segment_indices[idx] = segment_index
 			else:
-				print 'Cannot shift segment beyond predecessor!'
+				print('Cannot shift segment beyond predecessor!')
 		else:
 			if idx < len(self.song.segment_indices)-1 and self.song.segment_indices[idx+1] > segment_index:
 				self.song.segment_indices[idx] = segment_index
 			elif idx == len(self.song.segment_indices)-1 and segment_index < len(self.song.downbeats):
 				self.song.segment_indices[idx] = segment_index
 			else:
-				print 'Cannot shift segment beyond successor or end of song!'
+				print('Cannot shift segment beyond successor or end of song!')
 		
 		segidx = self.song.segment_indices[idx]
 		segtype = self.song.segment_types[idx]
@@ -185,15 +185,15 @@ class ToolFixAnnotationApp(tk.Tk):
 		self.segment_buttons[4*idx]['command'] = lambda i=segidx: self.play_segment(i)
 		self.song.loadAnnotSegments_fixNegativeStart()
 		
-		print self.song.segment_indices
+		print(self.song.segment_indices)
 		
 	def change_segment_type(self, idx):
 		self.song.segment_types[idx] = 'H' if self.song.segment_types[idx] == 'L' else 'L'
 		segidx = self.song.segment_indices[idx]
 		segtype = self.song.segment_types[idx]
 		self.segment_buttons[4*idx]['text'] = '[{}:{}]'.format(segidx,segtype)
-		print self.song.segment_indices
-		print self.song.segment_types
+		print(self.song.segment_indices)
+		print(self.song.segment_types)
 		
 	def add_segment_buttons(self):
 		for b in self.segment_buttons:
@@ -219,17 +219,17 @@ class ToolFixAnnotationApp(tk.Tk):
 		
 	def save(self):
 		song = self.song
-		print 'Saving annotations...'
+		print('Saving annotations...')
 		writeAnnotFile(song.dir_, song.title, ANNOT_BEATS_PREFIX, song.beats, {'tempo' : song.tempo , 'phase' : song.phase})
 		writeAnnotFile(song.dir_, song.title, ANNOT_DOWNB_PREFIX, song.downbeats)
 		writeAnnotFile(song.dir_, song.title, ANNOT_SEGMENT_PREFIX, zip(song.segment_indices, song.segment_types))	
-		print 'Annotations saved!'
+		print('Annotations saved!')
 		
 	def close_window(self):
 		self.stream.stop_stream()
 		self.stream.close()
 		self.pa.terminate()
-		print 'Closing window...'
+		print('Closing window...')
 		self.destroy()
 	
 
